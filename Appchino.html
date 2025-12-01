@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende Chino - Flashcards y Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fef5e7 0%, #ffe4e1 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 30px;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #666;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .menu-card .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .menu-card h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .menu-card p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .stats-bar p {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .stats-bar .highlight {
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #2196f3;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .back-button:hover {
+            color: #1565c0;
+        }
+
+        .progress {
+            text-align: right;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 30px;
+            padding: 60px;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .flashcard:hover {
+            transform: scale(1.02);
+        }
+
+        .flashcard .chinese {
+            font-size: 6em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .flashcard .pinyin {
+            font-size: 2.5em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .flashcard .english {
+            font-size: 2.5em;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .flashcard .hint {
+            color: #999;
+            font-style: italic;
+            margin-top: 20px;
+        }
+
+        .button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background 0.3s ease;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .button:hover {
+            background: #1565c0;
+        }
+
+        .button.success {
+            background: #4caf50;
+        }
+
+        .button.success:hover {
+            background: #388e3c;
+        }
+
+        .button.secondary {
+            background: #757575;
+        }
+
+        .button.secondary:hover {
+            background: #616161;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .quiz-question {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .quiz-question .chinese {
+            font-size: 5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .quiz-question .pinyin {
+            font-size: 2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question .question-text {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f5f5f5;
+            border: none;
+            padding: 20px;
+            font-size: 1.2em;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option:hover:not(:disabled) {
+            background: #e3f2fd;
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .option:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .results-container {
+            text-align: center;
+            background: white;
+            border-radius: 30px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .results-container .trophy {
+            font-size: 6em;
+            margin-bottom: 20px;
+        }
+
+        .results-container h2 {
+            font-size: 3em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .results-container .score {
+            font-size: 5em;
+            color: #4caf50;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .results-container .message {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2196f3;
+        }
+
+        .stat-card.green .value {
+            color: #4caf50;
+        }
+
+        .stat-card.yellow .value {
+            color: #ff9800;
+        }
+
+        .stat-card.purple .value {
+            color: #9c27b0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .flashcard .chinese {
+                font-size: 4em;
+            }
+
+            .quiz-question .chinese {
+                font-size: 3.5em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Menu View -->
+        <div id="menuView">
+            <div class="header">
+                <h1>📚 Aprende Chino</h1>
+                <p>Lecciones 7 y 8 • <span id="totalWords">73</span> palabras</p>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-card" onclick="startFlashcards()">
+                    <div class="icon">🎴</div>
+                    <h2>Flashcards</h2>
+                    <p>Practica el vocabulario</p>
+                </div>
+
+                <div class="menu-card" onclick="startQuiz()">
+                    <div class="icon">🏆</div>
+                    <h2>Quiz</h2>
+                    <p>Pon a prueba tu conocimiento</p>
+                </div>
+
+                <div class="menu-card" onclick="showStats()">
+                    <div class="icon">📊</div>
+                    <h2>Estadísticas</h2>
+                    <p>Ve tu progreso</p>
+                </div>
+            </div>
+
+            <div class="stats-bar" id="quickStats">
+                <p>🎯 Precisión: <span class="highlight" id="quickAccuracy">0%</span> (<span id="quickScore">0</span>/<span id="quickTotal">0</span> correctas)</p>
+            </div>
+        </div>
+
+        <!-- Flashcards View -->
+        <div id="flashcardsView" class="hidden">
+            <button class="back-button" onclick="showMenu()">← Volver al menú</button>
+            <div class="progress" id="flashcardProgress"></div>
+            
+            <div class="flashcard" id="flashcard" onclick="toggleAnswer()">
+                <div id="flashcardContent"></div>
+            </div>
+
+            <button class="button" onclick="nextFlashcard()" id="nextFlashcardBtn">Siguiente →</button>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="quizView" class="hidden">
+            <button class="back-button" onclick="showMenu()">← Volver al menú</button>
+            <div class="progress" id="quizProgress"></div>
+
+            <div class="quiz-container">
+                <div class="quiz-question" id="quizQuestion"></div>
+                <div class="options" id="quizOptions"></div>
+                <button class="button hidden" id="nextQuestionBtn" onclick="nextQuestion()">Siguiente Pregunta →</button>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="resultsView" class="hidden">
+            <div class="results-container">
+                <div class="trophy">🏆</div>
+                <h2>¡Quiz Completado!</h2>
+                <div class="score" id="finalScore"></div>
+                <p style="font-size: 1.5em; color: #666; margin-bottom: 20px;">
+                    <span id="correctCount"></span> de <span id="totalCount"></span> correctas
+                </p>
+                <div class="message" id="resultMessage"></div>
+                <div class="button-group">
+                    <button class="button success" onclick="startQuiz()">🔄 Intentar de nuevo</button>
+                    <button class="button secondary" onclick="showMenu()">Volver al menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats View -->
+        <div id="statsView" class="hidden">
+            <button class="back-button" onclick="showMenu()">← Volver al menú</button>
+            
+            <div class="results-container">
+                <h2>📊 Tus Estadísticas</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p>Total de Palabras</p>
+                        <div class="value">73</div>
+                    </div>
+
+                    <div class="stat-card green">
+                        <p>Preguntas Contestadas</p>
+                        <div class="value" id="statTotal">0</div>
+                    </div>
+
+                    <div class="stat-card yellow">
+                        <p>Respuestas Correctas</p>
+                        <div class="value" id="statCorrect">0</div>
+                    </div>
+
+                    <div class="stat-card purple">
+                        <p>Precisión General</p>
+                        <div class="value" id="statAccuracy">N/A</div>
+                    </div>
+                </div>
+
+                <p style="margin-top: 30px; color: #666; font-size: 1.1em;" id="statsMessage">
+                    ¡Empieza a practicar para ver tus estadísticas!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const vocabulary = [
+            { chinese: '點', pinyin: 'diǎn', english: "o'clock" },
+            { chinese: 'KTV', pinyin: 'KTV', english: 'Karaoke' },
+            { chinese: '唱歌', pinyin: 'chànggē', english: 'to sing' },
+            { chinese: '分', pinyin: 'fēn', english: 'minute' },
+            { chinese: '見面', pinyin: 'jiànmiàn', english: 'meet' },
+            { chinese: '從', pinyin: 'cóng', english: 'from' },
+            { chinese: '中午', pinyin: 'zhōngwǔ', english: 'noon' },
+            { chinese: '得', pinyin: 'děi', english: 'to have to, must' },
+            { chinese: '銀行', pinyin: 'yínháng', english: 'bank' },
+            { chinese: '時候', pinyin: 'shíhòu', english: 'when' },
+            { chinese: '後天', pinyin: 'hòutiān', english: 'the day after tomorrow' },
+            { chinese: '大安', pinyin: 'Dà\'ān', english: 'Da-an' },
+            { chinese: '下次', pinyin: 'xià cì', english: 'next time' },
+            { chinese: '沒問題', pinyin: 'méi wèntí', english: 'No problem' },
+            { chinese: '對了', pinyin: 'duìle', english: 'by the way' },
+            { chinese: '有空', pinyin: 'yǒu kòng', english: 'to have free time' },
+            { chinese: '再見', pinyin: 'zàijiàn', english: 'Goodbye' },
+            { chinese: '在', pinyin: 'zài', english: 'progressive aspect verb' },
+            { chinese: '午餐', pinyin: 'wǔcān', english: 'lunch' },
+            { chinese: '剛', pinyin: 'gāng', english: 'just now' },
+            { chinese: '下課', pinyin: 'xiàkè', english: 'to finish class' },
+            { chinese: '下午', pinyin: 'xiàwǔ', english: 'afternoon' },
+            { chinese: '半', pinyin: 'bàn', english: 'half' },
+            { chinese: '比賽', pinyin: 'bǐsài', english: 'game, competition' },
+            { chinese: '結束', pinyin: 'jiéshù', english: 'to finish' },
+            { chinese: '最近', pinyin: 'zuìjìn', english: 'recently, lately' },
+            { chinese: '忙', pinyin: 'máng', english: 'busy' },
+            { chinese: '每', pinyin: 'měi', english: 'every, each' },
+            { chinese: '天', pinyin: 'tiān', english: 'day' },
+            { chinese: '書法', pinyin: 'shūfǎ', english: 'calligraphy' },
+            { chinese: '課', pinyin: 'kè', english: 'class' },
+            { chinese: '開始', pinyin: 'kāishǐ', english: 'to begin, to start' },
+            { chinese: '字', pinyin: 'zì', english: 'character' },
+            { chinese: '寫', pinyin: 'xiě', english: 'to write' },
+            { chinese: '可以', pinyin: 'kěyǐ', english: 'may (permission)' },
+            { chinese: '問', pinyin: 'wèn', english: 'to ask' },
+            { chinese: '等一下', pinyin: 'děng yíxià', english: 'later' },
+            { chinese: '有事', pinyin: 'yǒu shì', english: 'to be busy' },
+            { chinese: '有意思', pinyin: 'yǒu yìsi', english: 'to be interesting' },
+            { chinese: '坐', pinyin: 'zuò', english: 'to take by, to travel by' },
+            { chinese: '火車', pinyin: 'huǒchē', english: 'train' },
+            { chinese: '跟', pinyin: 'gēn', english: 'with' },
+            { chinese: '玩', pinyin: 'wán', english: 'to have fun' },
+            { chinese: '怎麼', pinyin: 'zěnme', english: 'how' },
+            { chinese: '慢', pinyin: 'màn', english: 'slow' },
+            { chinese: '鐘頭', pinyin: 'zhōngtóu', english: 'hour' },
+            { chinese: '比較', pinyin: 'bǐjiào', english: '(comparatively) more' },
+            { chinese: '快', pinyin: 'kuài', english: 'fast' },
+            { chinese: '車票', pinyin: 'chēpiào', english: '(train, bus) ticket' },
+            { chinese: '非常', pinyin: 'fēicháng', english: 'very' },
+            { chinese: '但是', pinyin: 'dànshì', english: 'but, however' },
+            { chinese: '又', pinyin: 'yòu', english: 'both...and...' },
+            { chinese: '舒服', pinyin: 'shūfú', english: 'comfortable' },
+            { chinese: '站', pinyin: 'zhàn', english: 'station' },
+            { chinese: '或是', pinyin: 'huòshì', english: 'or' },
+            { chinese: '臺南', pinyin: 'Táinán', english: 'Tainan' },
+            { chinese: '高鐵', pinyin: 'gāotiě', english: 'High Speed Rail' },
+            { chinese: '網路上', pinyin: 'wǎnglu shàng', english: 'on the Internet' },
+            { chinese: '便利商店', pinyin: 'biànlì shāngdiàn', english: 'convenience store' },
+            { chinese: '同學', pinyin: 'tóngxué', english: 'classmate' },
+            { chinese: '參觀', pinyin: 'cānguān', english: 'to visit (an institution)' },
+            { chinese: '古代', pinyin: 'gǔdài', english: 'ancient times' },
+            { chinese: '騎', pinyin: 'qí', english: 'to ride' },
+            { chinese: '機車', pinyin: 'jīchē', english: 'motorcycle, scooter' },
+            { chinese: '載', pinyin: 'zài', english: 'to give someone a ride' },
+            { chinese: '捷運', pinyin: 'jiéyùn', english: 'MRT' },
+            { chinese: '比', pinyin: 'bǐ', english: 'than' },
+            { chinese: '故宮博物院', pinyin: 'Gùgōng Bówùyuàn', english: 'National Palace Museum' },
+            { chinese: '中國', pinyin: 'Zhōngguó', english: 'China' },
+            { chinese: '公共汽車', pinyin: 'gōnggòng qìchē', english: 'bus' },
+            { chinese: '不行', pinyin: 'bù xíng', english: 'will not do' },
+            { chinese: '計程車', pinyin: 'jìchéngchē', english: 'taxi' },
+            { chinese: '差不多', pinyin: 'chàbùduō', english: 'about the same' }
+        ];
+
+        let currentView = 'menu';
+        let flashcards = [];
+        let currentFlashcardIndex = 0;
+        let showAnswer = false;
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let totalScore = 0;
+        let totalQuestions = 0;
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function hideAllViews() {
+            document.getElementById('menuView').classList.add('hidden');
+            document.getElementById('flashcardsView').classList.add('hidden');
+            document.getElementById('quizView').classList.add('hidden');
+            document.getElementById('resultsView').classList.add('hidden');
+            document.getElementById('statsView').classList.add('hidden');
+        }
+
+        function showMenu() {
+            hideAllViews();
+            document.getElementById('menuView').classList.remove('hidden');
+            updateQuickStats();
+        }
+
+        function updateQuickStats() {
+            if (totalQuestions > 0) {
+                const accuracy = ((totalScore / totalQuestions) * 100).toFixed(1);
+                document.getElementById('quickAccuracy').textContent = accuracy + '%';
+                document.getElementById('quickScore').textContent = totalScore;
+                document.getElementById('quickTotal').textContent = totalQuestions;
+                document.getElementById('quickStats').style.display = 'block';
+            } else {
+                document.getElementById('quickStats').style.display = 'none';
+            }
+        }
+
+        function startFlashcards() {
+            hideAllViews();
+            flashcards = shuffleArray(vocabulary).slice(0, 10);
+            currentFlashcardIndex = 0;
+            showAnswer = false;
+            document.getElementById('flashcardsView').classList.remove('hidden');
+            displayFlashcard();
+        }
+
+        function displayFlashcard() {
+            const card = flashcards[currentFlashcardIndex];
+            const progress = document.getElementById('flashcardProgress');
+            progress.textContent = `${currentFlashcardIndex + 1} / ${flashcards.length}`;
+
+            const content = document.getElementById('flashcardContent');
+            
+            if (!showAnswer) {
+                content.innerHTML = `
+                    <div class="chinese">${card.chinese}</div>
+                    <div class="pinyin">${card.pinyin}</div>
+                    <p class="hint">Haz clic para ver el significado</p>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div style="font-size: 3.5em; font-weight: bold; color: #333; margin-bottom: 15px;">${card.chinese}</div>
+                    <div style="font-size: 1.8em; color: #666; margin-bottom: 20px;">${card.pinyin}</div>
+                    <div class="english">${card.english}</div>
+                `;
+            }
+
+            const btn = document.getElementById('nextFlashcardBtn');
+            btn.textContent = currentFlashcardIndex < flashcards.length - 1 ? 'Siguiente →' : 'Finalizar';
+        }
+
+        function toggleAnswer() {
+            showAnswer = !showAnswer;
+            displayFlashcard();
+        }
+
+        function nextFlashcard() {
+            if (currentFlashcardIndex < flashcards.length - 1) {
+                currentFlashcardIndex++;
+                showAnswer = false;
+                displayFlashcard();
+            } else {
+                showMenu();
+            }
+        }
+
+        function startQuiz() {
+            hideAllViews();
+            const selected = shuffleArray(vocabulary).slice(0, 10);
+            quizQuestions = selected.map(word => {
+                const wrongAnswers = shuffleArray(
+                    vocabulary.filter(v => v.english !== word.english)
+                ).slice(0, 3).map(v => v.english);
+                
+                const options = shuffleArray([...wrongAnswers, word.english]);
+                
+                return {
+                    ...word,
+                    options,
+                    correctAnswer: word.english
+                };
+            });
+            
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            document.getElementById('quizView').classList.remove('hidden');
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const progress = document.getElementById('quizProgress');
+            progress.textContent = `Pregunta ${currentQuestionIndex + 1} / ${quizQuestions.length}`;
+
+            const questionDiv = document.getElementById('quizQuestion');
+            questionDiv.innerHTML = `
+                <div class="chinese">${question.chinese}</div>
+                <div class="pinyin">${question.pinyin}</div>
+                <p class="question-text">¿Cuál es el significado?</p>
+            `;
+
+            const optionsDiv = document.getElementById('quizOptions');
+            optionsDiv.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.textContent = option;
+                btn.onclick = () => selectAnswer(option);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('nextQuestionBtn').classList.add('hidden');
+        }
+
+        function selectAnswer(answer) {
+            const question = quizQuestions[currentQuestionIndex];
+            const isCorrect = answer === question.correctAnswer;
+            
+            if (isCorrect) {
+                correctAnswers++;
+                totalScore++;
+            }
+            totalQuestions++;
+
+            const options = document.querySelectorAll('.option');
+            options.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === question.correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === answer && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            document.getElementById('nextQuestionBtn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            hideAllViews();
+            const percentage = (correctAnswers / quizQuestions.length * 100).toFixed(1);
+            
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('totalCount').textContent = quizQuestions.length;
+
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 ¡Excelente! ¡Dominas el vocabulario!';
+            } else if (percentage >= 70) {
+                message = '👍 ¡Muy bien! Sigue practicando.';
+            } else if (percentage >= 50) {
+                message = '📚 Buen intento. Repasa las flashcards.';
+            } else {
+                message = '💪 Sigue practicando. ¡Tú puedes!';
+            }
+            
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultsView').classList.remove('hidden');
+        }
+
+        function showStats() {
+            hideAllViews();
+            document.getElementById('statTotal').textContent = totalQuestions;
+            document.getElementById('statCorrect').textContent = totalScore;
+            
+            if (totalQuestions > 0) {
+                const accuracy = ((totalScore / totalQuestions) * 100).toFixed(1);
+                document.getElementById('statAccuracy').textContent = accuracy + '%';
+                document.getElementById('statsMessage').style.display = 'none';
+            } else {
+                document.getElementById('statAccuracy').textContent = 'N/A';
+                document.getElementById('statsMessage').style.display = 'block';
+            }
+            
+            document.getElementById('statsView').classList.remove('hidden');
+        }
+
+        // Initialize
+        updateQuickStats();
+    </script>
+</body>
+</html>
